@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Arijit's World</title>
+    <style>
+        /* Hide the buttons initially */
+        #prevButton,
+        #nextButton {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>Tune your favourites !</h1>
+    <ul>
+        <li>
+            <input type="radio" name="song" value="Dil jhum.m4a" data-source="Dil jhum" onclick="playSong(this)">
+            <span>Dil jhum</span>
+        </li>
+        <li>
+            <input type="radio" name="song" value="Ve kamliya.m4a" data-source="Ve Kamliya" onclick="playSong(this)">
+            <span>Ve kamliya</span>
+        </li>
+        <li>
+            <input type="radio" name="song" value="Satrangi.m4a" data-source="Satrangi" onclick="playSong(this)">
+            <span>Satrangi</span>
+        </li>
+        <!-- Add more songs as needed -->
+    </ul>
+
+    <p>Currently Playing: <span id="currentSong">None</span></p>
+
+    <audio id="audioPlayer" controls onended="playNextSong()">
+        Your browser does not support the audio element.
+    </audio>
+
+    <!-- Next and Previous buttons -->
+    <button id="prevButton" onclick="playPreviousSong()">Previous</button>
+    <button id="nextButton" onclick="playNextSong()">Next</button>
+
+    <script>
+        var songs = [];
+        var currentSongIndex = 0;
+        var audioPlayer = document.getElementById('audioPlayer');
+        var prevButton = document.getElementById('prevButton');
+        var nextButton = document.getElementById('nextButton');
+
+        function playSong(radioButton) {
+            var currentSongElement = document.getElementById('currentSong');
+            songs = document.querySelectorAll('input[name="song"]');
+            currentSongIndex = Array.from(songs).indexOf(radioButton);
+
+            audioPlayer.src = radioButton.value;
+            audioPlayer.play();
+            currentSongElement.innerText = radioButton.getAttribute('data-source');
+
+            // Show or hide the buttons based on the current song index
+            if (currentSongIndex === 0) {
+                prevButton.style.display = 'none';
+            } else {
+                prevButton.style.display = 'inline-block';
+            }
+
+            if (currentSongIndex === songs.length - 1) {
+                nextButton.style.display = 'none';
+            } else {
+                nextButton.style.display = 'inline-block';
+            }
+        }
+
+        function playNextSong() {
+            currentSongIndex = (currentSongIndex + 1) % songs.length;
+            songs[currentSongIndex].checked = true;
+            playSong(songs[currentSongIndex]);
+        }
+
+        function playPreviousSong() {
+            currentSongIndex = (currentSongIndex - 1 + songs.length) % songs.length;
+            songs[currentSongIndex].checked = true;
+            playSong(songs[currentSongIndex]);
+        }
+    </script>
+</body>
+</html>
