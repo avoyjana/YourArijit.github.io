@@ -3,6 +3,32 @@
 <head>
     <title>Arijit's World</title>
     <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f8f8f8;
+        }
+
+        /* Container for the music player and controls */
+        .player-container {
+         position: fixed;
+         bottom: 10%; /* Adjust the value to lift it higher or lower */
+         left: 50%;
+         transform: translateX(-50%);
+         background-color: #f1f1f1;
+         padding: 10px;
+         box-sizing: border-box;
+         text-align: center;
+         border-top-left-radius: 20px;
+         border-top-right-radius: 20px;
+         border-top: 2px solid #ddd;
+         border-bottom-left-radius: 20px; /* Add this line */
+         border-bottom-right-radius: 20px; /* Add this line */
+         border-bottom: 2px solid #ddd;
+        }
+
+
         /* Hide the buttons initially */
         #prevButton,
         #nextButton {
@@ -100,15 +126,18 @@
         <!-- Add more songs as needed -->
     </ul>
 
-    <p>Currently Playing: <span id="currentSong">None</span></p>
+    <!-- Container for the music player and controls -->
+    <div class="player-container">
+        <p>Currently Playing: <span id="currentSong">None</span></p>
 
-    <audio id="audioPlayer" controls onended="playNextSong()">
-        Your browser does not support the audio element.
-    </audio>
+        <audio id="audioPlayer" controls onended="playNextSong()">
+            Your browser does not support the audio element.
+        </audio>
 
-    <!-- Next and Previous buttons -->
-    <button id="prevButton" onclick="playPreviousSong()">Previous</button>
-    <button id="nextButton" onclick="playNextSong()">Next</button>
+        <!-- Next and Previous buttons -->
+        <button id="prevButton" onclick="playPreviousSong()">Previous</button>
+        <button id="nextButton" onclick="playNextSong()">Next</button>
+    </div>
 
     <script>
         var songs = [];
