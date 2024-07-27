@@ -705,8 +705,6 @@ Copy code
 
     <button id="prevButton" onclick="playPreviousSong()">&lt;| Previous</button>
     <button id="nextButton" onclick="playNextSong()">Next |&gt;</button>
-
-    <p>Total Users: <span id="userCount">Loading...</span></p>
 </div>
 
 <script>
@@ -735,22 +733,7 @@ Copy code
     // Initially load the first song
     playSong();
 
-    // Fetch and display the user count
-    fetch('https://your-vercel-project.vercel.app/api/counter')
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok ' + response.statusText);
-            }
-            return response.json();
-        })
-        .then(data => {
-            console.log('User count data:', data);
-            document.getElementById('userCount').textContent = data.count;
-        })
-        .catch(error => {
-            console.error('Error fetching user count:', error);
-            document.getElementById('userCount').textContent = 'Error fetching user count';
-        });
+    
     </script>
 </body>
 </html>
