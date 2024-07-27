@@ -582,6 +582,13 @@
             songs[currentSongIndex].checked = true;
             playSong(songs[currentSongIndex]);
         }
+        // Fetch and display the user count
+         fetch('counter.php')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('userCount').textContent = data.count;
+            })
+            .catch(error => console.error('Error fetching user count:', error));
     </script>
 </body>
 </html>
