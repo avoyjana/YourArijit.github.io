@@ -584,13 +584,173 @@
             songs[currentSongIndex].checked = true;
             playSong(songs[currentSongIndex]);
         }
-        // Fetch and display the user count
-         fetch('counter.php')
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById('userCount').textContent = data.count;
-            })
-            .catch(error => console.error('Error fetching user count:', error));
+
+If the HTML page still shows "Total Users: Loading...", there might be issues with the serverless function or the request to it. Let's debug and ensure everything is set up correctly. Here’s a step-by-step guide to check and fix potential issues:
+
+Step 1: Verify Vercel Serverless Function
+Ensure your serverless function is correctly deployed on Vercel.
+
+Create the Project Structure
+
+Your project should have a structure like this:
+
+go
+Copy code
+your-project/
+├── api/
+│   └── counter.js
+├── index.html
+├── package.json
+└── vercel.json
+counter.js Function
+
+Ensure your counter.js function is correctly set up:
+
+javascript
+Copy code
+// api/counter.js
+const { MongoClient } = require('mongodb');
+
+const uri = 'your_mongodb_connection_string'; // Replace with your MongoDB connection string
+const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
+
+module.exports = async (req, res) => {
+    try {
+        await client.connect();
+        const db = client.db('user_count_db'); // Replace with your database name
+        const collection = db.collection('user_count');
+
+        // Increment the user count
+        await collection.updateOne({ id: 1 }, { $inc: { count: 1 } }, { upsert: true });
+
+        // Retrieve the current count
+        const result = await collection.findOne({ id: 1 });
+        const current_count = result ? result.count : 0;
+
+        res.status(200).json({ count: current_count });
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    } finally {
+        await client.close();
+    }
+};
+vercel.json Configuration
+
+Ensure you have a vercel.json file to configure your Vercel deployment:
+
+json
+Copy code
+{
+  "version": 2,
+  "builds": [
+    { "src": "api/counter.js", "use": "@vercel/node" }
+  ]
+}
+Deploy to Vercel
+
+Ensure you deploy your project to Vercel using their CLI:
+
+sh
+Copy code
+vercel
+Step 2: Debug Fetch Request in HTML
+Ensure the fetch request in your HTML file is correctly configured and includes error handling to catch any issues:
+
+html
+Copy code
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Page User Count</title>
+    <style>
+        /* Container for the music player and controls */
+        .player-container {
+            position: fixed;
+            bottom: 10%;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #ADD8E6;
+            padding: 10px;
+            box-sizing: border-box;
+            text-align: center;
+            border-radius: 20px;
+            border: 2px solid #ddd;
+        }
+
+        #prevButton, #nextButton {
+            display: none;
+        }
+
+        .album-art {
+            width: 100px;
+            height: auto;
+            margin-bottom: 10px;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="player-container">
+    <p>Currently Playing: <span id="currentSong">None</span></p>
+
+    <img src="path/to/your/image.jpg" alt="Album Art" id="albumArt" class="album-art">
+
+    <audio id="audioPlayer" controls onended="playNextSong()">
+        Your browser does not support the audio element.
+    </audio>
+
+    <button id="prevButton" onclick="playPreviousSong()">&lt;| Previous</button>
+    <button id="nextButton" onclick="playNextSong()">Next |&gt;</button>
+
+    <p>Total Users: <span id="userCount">Loading...</span></p>
+</div>
+
+<script>
+    var audioPlayer = document.getElementById('audioPlayer');
+    var currentSong = document.getElementById('currentSong');
+
+    var songs = ['song1.mp3', 'song2.mp3', 'song3.mp3'];
+    var songIndex = 0;
+
+    function playNextSong() {
+        songIndex = (songIndex + 1) % songs.length;
+        playSong();
+    }
+
+    function playPreviousSong() {
+        songIndex = (songIndex - 1 + songs.length) % songs.length;
+        playSong();
+    }
+
+    function playSong() {
+        audioPlayer.src = songs[songIndex];
+        audioPlayer.play();
+        currentSong.textContent = songs[songIndex];
+    }
+
+    // Initially load the first song
+    playSong();
+
+    // Fetch and display the user count
+    fetch('https://your-vercel-project.vercel.app/api/counter')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok ' + response.statusText);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('User count data:', data);
+            document.getElementById('userCount').textContent = data.count;
+        })
+        .catch(error => {
+            console.error('Error fetching user count:', error);
+            document.getElementById('userCount').textContent = 'Error fetching user count';
+        });
     </script>
 </body>
 </html>
